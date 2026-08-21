@@ -33,7 +33,9 @@ class battle_engine:
                 f"<<{event.value}>> Wow! Special event for {player.name}",
                 f"GOD is that even possible! <<{event.value}>>",
             ]
-            return random.choices(list_messages)[0]
+            message = random.choices(list_messages)[0]
+            print(message)
+            return message
         else:
             return None
               
