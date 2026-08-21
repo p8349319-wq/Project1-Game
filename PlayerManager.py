@@ -22,7 +22,7 @@ class PlayerManager:
 
     def get_Players(self):
         if not self.players:
-            self.players = []
+            print("No players found")
             return
         for player in self.players:
             print(player)
