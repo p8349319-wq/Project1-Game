@@ -24,9 +24,8 @@ class PlayerManager:
         if not self.players:
             self.players = []
             return
-        else:
-            for player in self.players:
-                print(player)
+        for player in self.players:
+            print(player)
 
     def top_players(self):
         if not self.players:
