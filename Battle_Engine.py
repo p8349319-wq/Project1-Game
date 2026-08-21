@@ -1,5 +1,6 @@
 from Player import Player
-import Special_Event
+import Special_Event 
+from Special_Event import special_event
 import asyncio
 import random
 
@@ -24,11 +25,17 @@ class battle_engine:
                 event = self.special_event()
                 self.special_event_message(event,self.player2)
     def special_event():
-         return random.choices(list(Special_Event.weights.keys(),list(Special_Event.weights.values())))[0]
-    def special_event_message(event,player: Player):
-         if event != Special_Event.NO_EVENT:
-                       list_messages = [f"Special event happend: {event}, Such a lucky player!",f"<<{event}>> Wow! Special event for {player.name}",f"GOD is that even possible! <<{event}>>"]
-                       return random.choices(list_messages)[0]
+         return random.choices(list(Special_Event.weights.keys()),list(Special_Event.weights.values()))[0]
+    def special_event_message(self, event, player: Player):
+        if event != special_event.NO_EVENT:
+            list_messages = [
+                f"Special event happend: {event.value}, Such a lucky player!",
+                f"<<{event.value}>> Wow! Special event for {player.name}",
+                f"GOD is that even possible! <<{event.value}>>",
+            ]
+            return random.choices(list_messages)[0]
+        else:
+            return None
               
          
 
