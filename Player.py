@@ -9,7 +9,7 @@ def id_validation(id):
 
 def id_generator():
     for i in range(0, 8):
-        return 360000 + i
+        yield 360000 + i
 
 
 class Player:
