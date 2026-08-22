@@ -10,22 +10,9 @@ class battle_engine:
         self.player2 = player2
     def start_battle(self):
         return(f"---Match starts {self.player1.name} VS {self.player2.name}---")
-    async def game_round(self,number_of_rounds):
-            round = 0
-            while(round < number_of_rounds):
-                print(f"Round {round} START: ")
-                await asyncio.sleep(0.4)
-                print(f"Player {self.player1.name} turn to attack:")
-                await asyncio.sleep(0.5)
-                event = self.special_event()
-                self.special_event_message(event,self.player1)
-                await asyncio.sleep(0.6)
-                print(f"Player {self.player2.name} turn to attack:")
-                await asyncio.sleep(0.5)
-                event = self.special_event()
-                self.special_event_message(event,self.player2)
-    def special_event():
-         return random.choices(list(Special_Event.weights.keys()),list(Special_Event.weights.values()))[0]
+
+    def special_event(self):
+             return random.choices(list(Special_Event.weights.keys()),list(Special_Event.weights.values()))[0]
     def special_event_message(self, event, player: Player):
         if event != special_event.NO_EVENT:
             list_messages = [
@@ -34,10 +21,34 @@ class battle_engine:
                 f"GOD is that even possible! <<{event.value}>>",
             ]
             message = random.choices(list_messages)[0]
-            print(message)
             return message
         else:
             return None
+
+    def player_attack(self,player:Player,event):
+         player.attack
+    async def game_round(self,number_of_rounds):
+            round = 0
+            while(round < number_of_rounds):
+                print(f"Round {round} START: ")
+                await asyncio.sleep(0.4)
+                print(f"Player {self.player1.name} turn to attack:")
+                await asyncio.sleep(0.5)
+                event = self.special_event(self)
+                message = self.special_event_message(event,self.player1)
+                if message:
+                     print(message)
+                await asyncio.sleep(0.6)
+                print(f"Player {self.player2.name} turn to attack:")
+                await asyncio.sleep(0.5)
+                event = self.special_event(self)
+                message = self.special_event_message(event,self.player2)
+                if message:
+                     print(message)
+                round += 1
+    
+    def __call__(self, rounds: int):
+         asyncio.run()
               
          
 

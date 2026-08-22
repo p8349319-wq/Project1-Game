@@ -4,6 +4,7 @@ class special_event(Enum):
     ATTACK = "Massive Attack"
     DEFENSE = "Unbreakable Wall"
     SPEED = "Fast Acceleration"
+    EXTRA_Attack = "Extra Attack"
     NO_EVENT = "No Event"
 
 weights = {

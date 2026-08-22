@@ -29,11 +29,11 @@ class Test_Battle(unittest.TestCase):
     def test_match_start(self):
         self.assertEqual(self.battle.start_battle(),"---Match starts ali VS reza---")
     def test_special_event_random(self):
-        result = str(battle_engine.special_event())
-        valid_events = ["special_event.ATTACK","special_event.DEFENSE","special_event.SPEED","special_event.NO_EVENT"]
+        result = str(battle_engine.special_event(self))
+        valid_events = ["special_event.ATTACK","special_event.DEFENSE","special_event.SPEED","special_event.NO_EVENT","special_event.EXTRA_ROUND"]
         self.assertIn(result,valid_events)
     def test_special_event_message_all_cases(self):
-        for event in [special_event.ATTACK, special_event.DEFENSE, special_event.SPEED]:
+        for event in [special_event.ATTACK, special_event.DEFENSE, special_event.SPEED,special_event.EXTRA_Attack]:
             result = self.battle.special_event_message(event, self.player1)
             valid_messages = [
                 f"Special event happend: {event.value}, Such a lucky player!",
