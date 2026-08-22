@@ -2,6 +2,7 @@
 
 from PlayerManager import PlayerManager
 from Player import Player
+from Tournament import Tournament
 from Player import InvalidNameError
 
 
@@ -15,7 +16,8 @@ def show_menu():
     print("3. Search player by ID")
     print("4. Remove player by ID")
     print("5. Show top players by wins")
-    print("6. Exit")
+    print("6. Start tournament (8 players)")
+    print("7. Exit")
     print("=" * 50)
 
 
@@ -55,6 +57,33 @@ def remove_player(manager):
         print("❌ Invalid ID. Please enter a number.")
 
 
+def start_tournament(manager):
+    """Start a tournament with 8 players"""
+    players = manager.players
+
+    if len(players) < 8:
+        print(f"❌ Not enough players! Need 8 players, but only have {len(players)}.")
+        print(f"   Please create {8 - len(players)} more player(s).")
+        return
+
+    if len(players) > 8:
+        print(f"⚠️ You have {len(players)} players. Using first 8 for the tournament.")
+        selected_players = players[:8]
+    else:
+        selected_players = players
+
+    try:
+        tournament = Tournament(selected_players)
+        champion = tournament.start_tournament()
+        tournament.display_bracket()
+
+        print("\n🎉 Tournament completed successfully!")
+        print(f"🏆 Champion: {champion.name} with {champion.wins} wins!")
+
+    except Exception as e:
+        print(f"❌ Tournament error: {e}")
+
+
 def main():
     """Main program loop with match-case"""
     manager = PlayerManager()
@@ -64,12 +93,11 @@ def main():
         show_menu()
 
         try:
-            choice = int(input("Enter your choice (1-6): ").strip())
+            choice = int(input("Enter your choice (1-7): ").strip())
         except ValueError:
-            print("❌ Invalid input. Please enter a number between 1 and 6.")
+            print("❌ Invalid input. Please enter a number between 1 and 7.")
             continue
 
-        # استفاده از match-case (نیاز به پایتون 3.10+)
         match choice:
             case 1:
                 create_player(manager)
@@ -87,11 +115,14 @@ def main():
                 manager.get_top_players()
 
             case 6:
+                start_tournament(manager)
+
+            case 7:
                 print("\n👋 Goodbye! Thanks for playing!")
                 running = False
 
             case _:
-                print("❌ Invalid choice. Please enter a number between 1 and 6.")
+                print("❌ Invalid choice. Please enter a number between 1 and 7.")
 
 
 if __name__ == "__main__":
