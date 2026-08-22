@@ -13,7 +13,7 @@ def id_generator():
 
 
 class Player:
-    def __init__(self, name, rating, attack, defense, speed, luck, wins, losses):
+    def __init__(self, name, rating, attack, defense, speed, luck,heal,status, wins, losses):
         self.name = name
         self.ID =id_generator()
         self.rating = rating
@@ -21,6 +21,8 @@ class Player:
         self.defense = defense
         self.speed = speed
         self.luck = luck
+        self.heal = heal
+        self.status = status
         self.wins = wins
         self.losses = losses
 
