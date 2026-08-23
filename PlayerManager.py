@@ -19,7 +19,9 @@ class PlayerManager:
         for i, player in enumerate(self.players):
             if player.ID == player_id:
                 removed = self.players.pop(i)
-                print(f"✅ Player '{removed.name}' (ID: {player_id}) removed successfully!")
+                print(
+                    f"✅ Player '{removed.name}' (ID: {player_id}) removed successfully!"
+                )
                 return True
         print(f"❌ Player with ID {player_id} not found.")
         return False
@@ -65,7 +67,7 @@ class PlayerManager:
         """Get detailed stats for a specific player"""
         player = self.search_player(player_id)
         if player:
-            print(f"\n📊 Player Statistics")
+            print("\n📊 Player Statistics")
             print("=" * 50)
             print(player)
             return player

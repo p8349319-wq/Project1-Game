@@ -3,18 +3,21 @@ import re
 
 # exceptions.py
 
+
 class InvalidNameError(Exception):
     """Custom exception for name validation errors"""
+
     def __init__(self, message="Invalid name."):
         self.message = message
         super().__init__(self.message)
+
 
 # validation.py
 def validate_name(name):
     """
     Validate name - only English letters allowed
     """
-    pattern = r'^[a-zA-Z\s]{2,30}$'
+    pattern = r"^[a-zA-Z\s]{2,30}$"
 
     # Check if empty
     if not name or len(name.strip()) == 0:
@@ -39,8 +42,6 @@ def validate_name(name):
     return name
 
 
-
-
 # player.py
 class Player:
     _id_counter = 360000  # Class variable for ID generation
@@ -55,6 +56,7 @@ class Player:
         self.speed = randint(40, 100)
         self.health = randint(1000, 2000)
         self.luck = randint(40, 100)
+        self.status = None
         self.wins = 0
         self.losses = 0
 
@@ -64,7 +66,6 @@ class Player:
         current_id = cls._id_counter
         cls._id_counter += 1
         return current_id
-
 
     def __str__(self):
         return f"ID: {self.ID}\nName: {self.name}\nRating: {self.rating}\nAttack: {self.attack}\n Health: {self.health}\nDefense: {self.defense}\nSpeed: {self.speed}\nLuck: {self.luck}\nWins: {self.wins}\nLosses: {self.losses}"

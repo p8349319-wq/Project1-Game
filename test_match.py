@@ -2,48 +2,34 @@ from Battle_Engine import battle_engine
 from Player import Player
 from Enum_classes import special_event, player_status
 import unittest
+from unittest.mock import patch
 
 
 class Test_Battle(unittest.TestCase):
     def setUp(self):
-        self.player1 = Player(
-            name="ali",
-            attack=60,
-            defense=30,
-            speed=50,
-            luck=20,
-            rating=1700,
-            wins=0,
-            losses=0,
-            heal=1500,
-            status=player_status.IN_MATCH,
-        )
-        self.player2 = Player(
-            name="reza",
-            attack=50,
-            defense=40,
-            speed=60,
-            rating=1600,
-            luck=30,
-            wins=0,
-            losses=0,
-            heal=1500,
-            status=player_status.IN_MATCH,
-        )
+        self.player1 = Player(name="ali")
+        self.player2 = Player(name="reza")
         self.battle = battle_engine(self.player1, self.player2)
+
+    def test_init(self):
+        self.assertEqual(self.battle.player1.name, "ali")
+        self.assertEqual(self.battle.player2.name, "reza")
+
+    def test_init_clones_players(self):
+        self.assertEqual(self.battle.player1_clone.health, self.player1.health)
+        self.assertEqual(self.battle.player2_clone.health, self.player2.health)
 
     def test_start_battle(self):
         result = self.battle.start_battle()
-        self.assertEqual(result, "⚔️  ---Match starts ali VS reza--- ⚔️")
+        self.assertEqual(
+            result,
+            f"⚔️  ---Match starts {self.player1.name} VS {self.player2.name}--- ⚔️",
+        )
 
     def test_start_battle_sets_status(self):
         self.battle.start_battle()
         self.assertEqual(self.player1.status, player_status.IN_MATCH)
         self.assertEqual(self.player2.status, player_status.IN_MATCH)
-
-    def test_init(self):
-        self.assertEqual(self.battle.player1.name, "ali")
-        self.assertEqual(self.battle.player2.name, "reza")
 
     def test_special_event_returns_valid_event(self):
         result = self.battle.special_event(self.player1)
@@ -88,54 +74,76 @@ class Test_Battle(unittest.TestCase):
         )
         self.assertIsNone(result)
 
+    def test_special_event_message_defense_not_in_attack(self):
+        result = self.battle.special_event_message(
+            special_event.DEFENSE, special_event.NO_EVENT, self.player1, self.player2
+        )
+        self.assertIsNone(result)
+
+    def test_special_event_message_all_attack_events(self):
+        for event in [
+            special_event.ATTACK,
+            special_event.SPEED,
+            special_event.EXTRA_Attack,
+        ]:
+            result = self.battle.special_event_message(
+                event, special_event.NO_EVENT, self.player1, self.player2
+            )
+            self.assertIsNotNone(result)
+
     def test_player_attack_no_event(self):
         result = self.battle.player_attack(self.player1, special_event.NO_EVENT)
-        expected = (2 * 60 * 50) / 10
+        expected = (1.5 * self.player1.attack * self.player1.speed) / 14
         self.assertEqual(result, expected)
 
     def test_player_attack_attack_event(self):
         result = self.battle.player_attack(self.player1, special_event.ATTACK)
-        expected = (2.5 * 60 * 50) / 10
+        expected = (2 * self.player1.attack * self.player1.speed) / 14
         self.assertEqual(result, expected)
 
     def test_player_attack_extra_attack_event(self):
         result = self.battle.player_attack(self.player1, special_event.EXTRA_Attack)
-        expected = (2 * (60 * 2) * 50) / 10
+        expected = (1.5 * (self.player1.attack * 2) * self.player1.speed) / 14
         self.assertEqual(result, expected)
 
     def test_player_attack_speed_event(self):
         result = self.battle.player_attack(self.player1, special_event.SPEED)
-        expected = (2 * 60 * (50 * 1.3)) / 10
+        expected = (1.5 * self.player1.attack * (self.player1.speed * 1.2)) / 14
         self.assertEqual(result, expected)
 
     def test_player_defense_no_event(self):
         result = self.battle.player_defense(self.player2, special_event.NO_EVENT)
-        expected = 2.5 * 40
+        expected = self.player2.defense * 0.5
         self.assertEqual(result, expected)
 
     def test_player_defense_defense_event(self):
         result = self.battle.player_defense(self.player2, special_event.DEFENSE)
-        expected = 2.5 * (40 * 1.5)
+        expected = (self.player2.defense * 1.5) * 0.5
         self.assertEqual(result, expected)
 
     def test_apply_damage_reduces_health(self):
-        initial_heal = self.player2.heal
+        initial_health = self.player2.health
         damage = self.battle.apply_damage(
             self.player1, self.player2, special_event.NO_EVENT, special_event.NO_EVENT
         )
-        self.assertEqual(self.player2.heal, initial_heal - damage)
+        self.assertEqual(self.player2.health, initial_health - damage)
 
     def test_apply_damage_never_negative(self):
-        self.player1.attack = 1
-        self.player1.speed = 1
-        self.player2.defense = 100
-        damage = self.battle.apply_damage(
-            self.player1, self.player2, special_event.NO_EVENT, special_event.DEFENSE
-        )
-        self.assertEqual(damage, 0)
+        with (
+            patch.object(self.player1, "attack", 1),
+            patch.object(self.player1, "speed", 1),
+            patch.object(self.player2, "defense", 100),
+        ):
+            damage = self.battle.apply_damage(
+                self.player1,
+                self.player2,
+                special_event.NO_EVENT,
+                special_event.DEFENSE,
+            )
+            self.assertEqual(damage, 0)
 
     def test_check_game_winner_player1_loses(self):
-        self.player1.heal = 0
+        self.player1.health = 0
         message, winner, loser = self.battle.check_game_winner()
         self.assertEqual(winner, self.player2)
         self.assertEqual(loser, self.player1)
@@ -143,7 +151,7 @@ class Test_Battle(unittest.TestCase):
         self.assertEqual(self.player2.status, player_status.WIN)
 
     def test_check_game_winner_player2_loses(self):
-        self.player2.heal = 0
+        self.player2.health = 0
         message, winner, loser = self.battle.check_game_winner()
         self.assertEqual(winner, self.player1)
         self.assertEqual(loser, self.player2)
@@ -157,7 +165,7 @@ class Test_Battle(unittest.TestCase):
         self.assertIsNone(loser)
 
     def test_check_game_winner_message_player1_loses(self):
-        self.player1.heal = 0
+        self.player1.health = 0
         message, winner, loser = self.battle.check_game_winner()
         self.assertEqual(
             message,
@@ -165,24 +173,62 @@ class Test_Battle(unittest.TestCase):
         )
 
     def test_check_game_winner_message_player2_loses(self):
-        self.player2.heal = 0
+        self.player2.health = 0
         message, winner, loser = self.battle.check_game_winner()
         self.assertEqual(
             message,
             f"💀 {self.player2.name} has no health left! 🏆 {self.player1.name} WINS!",
         )
 
-    def test_special_event_all_events(self):
-        for event in [
-            special_event.ATTACK,
-            special_event.DEFENSE,
-            special_event.SPEED,
-            special_event.EXTRA_Attack,
-        ]:
-            result = self.battle.special_event_message(
-                event, special_event.NO_EVENT, self.player1, self.player2
-            )
-            self.assertIsNotNone(result)
+    def test_check_game_winner_restores_stats(self):
+        original_health = self.player2.health
+        self.player1.health = 0
+        self.battle.check_game_winner()
+        self.assertEqual(self.player2.health, original_health)
+
+    def test_check_game_winner_updates_wins(self):
+        self.player1.health = 0
+        self.battle.check_game_winner()
+        self.assertEqual(self.player2.wins, 1)
+        self.assertEqual(self.player1.losses, 1)
+
+    def test_decide_winner_by_health_player1_wins(self):
+        self.player1.health = 800
+        self.player2.health = 500
+        winner, loser = self.battle._decide_winner_by_health()
+        self.assertEqual(winner, self.player1)
+        self.assertEqual(loser, self.player2)
+        self.assertEqual(self.player1.status, player_status.WIN)
+        self.assertEqual(self.player2.status, player_status.LOSE)
+
+    def test_decide_winner_by_health_player2_wins(self):
+        self.player1.health = 300
+        self.player2.health = 700
+        winner, loser = self.battle._decide_winner_by_health()
+        self.assertEqual(winner, self.player2)
+        self.assertEqual(loser, self.player1)
+        self.assertEqual(self.player2.status, player_status.WIN)
+        self.assertEqual(self.player1.status, player_status.LOSE)
+
+    def test_decide_winner_by_health_draw(self):
+        self.player1.health = 500
+        self.player2.health = 500
+        winner, loser = self.battle._decide_winner_by_health()
+        self.assertIsNone(winner)
+        self.assertIsNone(loser)
+
+    def test_decide_winner_by_health_updates_wins(self):
+        self.player1.health = 800
+        self.player2.health = 500
+        self.battle._decide_winner_by_health()
+        self.assertEqual(self.player1.wins, 1)
+        self.assertEqual(self.player2.losses, 1)
+
+    def test_restore_player(self):
+        original_health = self.player1.health
+        self.player1.health = 0
+        self.battle._restore_player(self.player1, self.battle.player1_clone)
+        self.assertEqual(self.player1.health, original_health)
 
 
 if __name__ == "__main__":

@@ -54,11 +54,13 @@ class Match:
         """Calculate a player's score based on their stats"""
         # Random factor adds unpredictability
         random_factor = randint(0, 20)
-        return (player.attack * 0.3 +
-                player.defense * 0.3 +
-                player.speed * 0.2 +
-                player.rating * 0.2 +
-                random_factor)
+        return (
+            player.attack * 0.3
+            + player.defense * 0.3
+            + player.speed * 0.2
+            + player.rating * 0.2
+            + random_factor
+        )
 
     def __str__(self):
         if self.is_played:
